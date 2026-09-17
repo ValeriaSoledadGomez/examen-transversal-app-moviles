@@ -36,8 +36,12 @@ La demostración completa, con capturas de cada pantalla y de los casos de error
 **Limitación conocida.** En el emulador de Android, `takePictureAsync` devuelve un archivo JPEG sin
 contenido visible. Toda la cadena de la fotografía funciona y está verificada (permiso, vista previa
 en vivo, disparo, traslado del archivo al directorio de documentos, persistencia y miniatura); lo que
-falla es el contenido del archivo que entrega el emulador. El diagnóstico completo, con las cinco
-hipótesis que se descartaron, está en la sección 8 del informe.
+falla es el contenido del archivo que entrega el emulador.
+
+El archivo extraído del dispositivo resulta ser un JPEG válido de 1080x1911 con una marca de tiempo
+estampada en amarillo que la aplicación no dibuja: la genera la capa de cámara del emulador. El
+diagnóstico completo, con las seis hipótesis descartadas (incluido un *development build* propio que
+no usa Expo Go), está en la sección 8 del informe.
 
 ---
 

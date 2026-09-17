@@ -927,7 +927,7 @@ es únicamente el contenido del archivo que entrega el emulador.
 La vista previa entrega fotogramas correctos, como muestra la captura. El problema aparece solo al
 materializar el archivo.
 
-Se descartaron cuatro hipótesis de forma sistemática:
+Se descartaron seis hipótesis de forma sistemática:
 
 | Hipótesis | Acción | Resultado |
 |---|---|---|
@@ -935,16 +935,41 @@ Se descartaron cuatro hipótesis de forma sistemática:
 | Posprocesado de la imagen | `skipProcessing: true` y margen de 1,5 s | Sin cambio. Revertido, para no dejar código supersticioso |
 | Renderizado por GPU del anfitrión | Reiniciar el emulador con `-gpu swiftshader_indirect` | Sin cambio |
 | Fuente de la cámara virtual | Cambiar la cámara del dispositivo virtual a la webcam física del equipo | La vista previa mostró fotogramas reales de la webcam; **la captura siguió en negro** |
+| Versión de Android | Repetir la prueba completa en un emulador Pixel 6 con API 33 (Android 13) | Sin cambio, y además en esa versión ni siquiera la vista previa funciona |
+| Expo Go como intermediario | Compilar un *development build* con `npx expo run:android`, que integra CameraX en nuestro propio binario en lugar de usar el de Expo Go | Compilación correcta en 23 min 43 s. **La captura siguió en negro** |
 
-El cuarto experimento es el que cierra el diagnóstico: al cambiar por completo la fuente de la
-cámara sin que el resultado varíe, el fallo queda localizado en la ruta de captura de CameraX sobre
-este emulador, y no en la fuente ni en el código de la aplicación.
+La última hipótesis era la principal y también cayó. Un *development build* no usa el binario de
+Expo Go: compila la aplicación con su propia integración nativa de CameraX. Que el resultado sea
+idéntico descarta a Expo Go como causa.
 
-**Consecuencia para la evaluación.** La lógica de RF-01 relativa a la cámara está implementada y es
-demostrable en sus estados intermedios, pero la fotografía resultante no tiene contenido visible en
-el entorno de demostración. La vía de resolución identificada, no ejecutada por decisión de
-planificación de tiempo, es ejecutar la aplicación en un dispositivo Android físico con Expo Go,
-donde la ruta de captura es la del fabricante y no la del emulador.
+### La prueba que cierra el diagnóstico
+
+Al extraer el archivo directamente del sandbox de la aplicación
+(`adb shell run-as cl.ipss.avistaves cat files/fotos/...`) aparece el dato concluyente:
+
+![Captura cruda extraída del dispositivo](docs/evidencia-captura-emulador-cruda.jpg)
+
+El archivo es un **JPEG válido de 1080x1911 píxeles y 17.026 bytes**, es decir 0,008 bytes por
+píxel, cuando una fotografía real de esa escena rondaría entre 0,05 y 0,3. Pero lo decisivo no es
+el tamaño: es que la imagen **lleva estampada una marca de tiempo en amarillo**, "17.09.26
+16:20:51", que nuestro código no dibuja en ninguna parte.
+
+Esa marca la genera la capa de cámara del propio emulador de Android. Su presencia demuestra tres
+cosas a la vez:
+
+1. La cadena de captura **funciona**: se generó un JPEG bien formado, a resolución completa, con el
+   posprocesado del sistema aplicado.
+2. El contenido negro **no lo produce nuestro código**, que se limita a recibir el archivo y moverlo
+   al directorio de documentos.
+3. El fallo está en el **componente de cámara del emulador**, que entrega su fotograma de captura
+   en negro aunque alimente correctamente la vista previa. Son dos rutas distintas dentro del
+   emulador, y solo una de ellas funciona.
+
+**Consecuencia para la evaluación.** La lógica de RF-01 relativa a la cámara está implementada y
+verificada en toda su extensión: permiso, vista previa en vivo, disparo, obtención de un archivo
+válido, traslado a almacenamiento permanente, persistencia y renderizado. Lo único que el entorno de
+demostración no puede aportar es el contenido visible de la imagen. La vía de resolución es ejecutar
+la aplicación en un dispositivo Android físico, donde la cámara es la del fabricante.
 
 ### 8.3 Decisión pendiente documentada
 
