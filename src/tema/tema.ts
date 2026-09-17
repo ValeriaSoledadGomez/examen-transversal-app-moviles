@@ -2,7 +2,7 @@
  * Tokens de diseño de AvistAves.
  *
  * Único lugar del proyecto donde se escriben colores, espaciados y tamaños.
- * Ningún componente define un literal de color por su cuenta (ver AGENTS.md, seccion 4).
+ * Ningún componente define un literal de color por su cuenta (ver AGENTS.md, sección 4).
  *
  * Criterio: la aplicación se usa al aire libre, con una mano y con sol sobre la pantalla.
  * De ahí el contraste alto, los cuerpos de texto grandes y las áreas pulsables amplias.

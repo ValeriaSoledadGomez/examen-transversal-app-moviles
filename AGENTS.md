@@ -108,6 +108,13 @@ del primer commit de código propio y se reemplaza por la estructura de `BRIEF.m
 La plantilla configura en `tsconfig.json` el alias `@/*` apuntando a `src/*`. Se usa siempre en las
 importaciones: `@/servicios/servicioClima`, no rutas relativas con `../../`.
 
+**El React Compiler viene activado en la plantilla y hay que desactivarlo.** La plantilla genera
+`app.json` con `"experiments": { "reactCompiler": true }`. Con esa opción activa, la aplicación
+falla en tiempo de ejecución con "React has detected a change in the order of Hooks" apuntando a un
+`useState` perfectamente normal, y la pantalla queda colgada en su estado de carga. Verificado en el
+emulador: desactivarlo resolvió el fallo sin tocar una sola línea de código de la aplicación. El
+`app.json` de este proyecto deja solo `"typedRoutes": true`. **No se vuelve a activar.**
+
 ### Trabajo diario
 
 | Acción | Comando |
@@ -143,6 +150,12 @@ Dos advertencias sobre el emulador:
 
 1. `adb emu geo fix` recibe **primero la longitud y después la latitud**, al revés del orden en que
    se escriben normalmente las coordenadas. Para Santiago: `adb emu geo fix -70.6693 -33.4489`.
+   Además, el emulador descarta el envío si en ese instante no hay nadie escuchando el proveedor
+   GPS, de modo que **conviene enviarlo en bucle** mientras se prueba la captura de ubicación:
+   `for i in $(seq 1 60); do adb emu geo fix -70.6693 -33.4489; sleep 2; done &`
+1. Para conectar la aplicación con Metro, `adb reverse tcp:8081 tcp:8081` y abrir
+   `exp://127.0.0.1:8081`. Depender de la IP de la red local es frágil: si cambia, la aplicación
+   muestra "Cannot connect to Expo CLI" sin más explicación.
 2. Si hubiera que crear un AVD nuevo, debe usar una imagen **con Google APIs**. Las imágenes AOSP no
    incluyen el proveedor de ubicación de Google y `getCurrentPositionAsync` puede no resolver nunca.
    La cámara trasera debe quedar configurada como `VirtualScene` o `Webcam0`.
@@ -192,27 +205,38 @@ Pantalla (src/app/)  →  Hook (src/hooks/)  →  Servicio (src/servicios/)  →
 | Acceso | Archivo autorizado | Nadie más lo importa |
 |---|---|---|
 | Cámara (`expo-camera`) | `src/componentes/CapturadorFoto.tsx` para el componente `CameraView`, y `src/servicios/servicioFotos.ts` para el archivo resultante | `expo-camera` |
-| Ubicación y geocodificación (`expo-location`) | `src/servicios/servicioUbicacion.ts` | `expo-location` |
+| Ubicación y geocodificación (`expo-location`) | `src/servicios/servicioUbicacion.ts`, y `src/hooks/usarUbicacionActual.ts` solo para el hook de permisos | `expo-location` |
 | Sistema de archivos (`expo-file-system`) | `src/servicios/servicioFotos.ts` | `expo-file-system` |
 | Almacenamiento (`AsyncStorage`) | `src/servicios/repositorioAvistamientos.ts` y `src/servicios/cacheClima.ts` | `@react-native-async-storage/async-storage` |
 | Red (`fetch`) | `src/servicios/clienteHttp.ts` | `fetch` |
 | API de clima | `src/servicios/servicioClima.ts`, que usa `clienteHttp` y `cacheClima` | La URL de Open-Meteo |
 
-`CapturadorFoto.tsx` es la única excepción a la regla de que los componentes no tocan bibliotecas
-externas, y lo es por una razón técnica: `CameraView` es un componente, no una función, y no puede
-envolverse en un servicio. Su alcance está acotado: monta la vista de cámara, dispara y entrega el
-URI resultante por callback. **No** mueve el archivo, **no** lo persiste y **no** conoce el modelo
-`Avistamiento`. Todo eso ocurre en `servicioFotos.ts`.
+### Las dos excepciones, y por qué existen
+
+Hay exactamente dos archivos fuera de `src/servicios/` que importan una biblioteca de periférico.
+Ambos por la misma razón técnica: **React tiene construcciones que no se pueden envolver en una
+función**. Un componente y un hook solo pueden invocarse desde el árbol de React, de modo que
+meterlos en un servicio no es una cuestión de disciplina, es imposible.
+
+| Archivo | Qué importa | Por qué no puede estar en un servicio | Alcance permitido |
+|---|---|---|---|
+| `src/componentes/CapturadorFoto.tsx` | `CameraView`, `useCameraPermissions` de `expo-camera` | `CameraView` es un componente | Monta la vista, dispara y entrega el URI por callback. **No** mueve el archivo, **no** lo persiste y **no** conoce el modelo `Avistamiento` |
+| `src/hooks/usarUbicacionActual.ts` | `useForegroundPermissions` de `expo-location` | Es un hook | Solo el estado del permiso. Toda la obtención de posición y la geocodificación pasan por `servicioUbicacion.ts` |
+
+Fuera de esos dos usos concretos, la regla no admite excepciones. Ningún archivo de `src/app/`
+importa nunca una biblioteca de periférico, de red o de almacenamiento.
 
 ### Cómo se verifica que la regla se cumple
 
 ```bash
-grep -rn "expo-camera\|expo-location\|expo-file-system\|async-storage" src/app/ src/componentes/
+grep -rn "expo-camera\|expo-location\|expo-file-system\|async-storage" src/app/ src/componentes/ src/hooks/
+grep -rn "fetch(" src/app/ src/componentes/
 ```
 
-La única línea que puede aparecer es la importación de `expo-camera` en `CapturadorFoto.tsx`.
-Cualquier otro resultado es una violación de la arquitectura que hay que corregir antes de dar la
-tarea por terminada.
+El primer comando solo puede devolver dos líneas: la importación de `expo-camera` en
+`CapturadorFoto.tsx` y la de `expo-location` en `usarUbicacionActual.ts`. El segundo no puede
+devolver ninguna. Cualquier otro resultado es una violación de la arquitectura que hay que corregir
+antes de dar la tarea por terminada.
 
 ---
 
