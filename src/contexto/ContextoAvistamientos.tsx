@@ -16,7 +16,6 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 
 import type { Avistamiento } from '@/modelos/avistamiento';
 import * as repositorio from '@/servicios/repositorioAvistamientos';
-import { eliminarFoto } from '@/servicios/servicioFotos';
 
 export type EstadoAvistamientos = {
   avistamientos: Avistamiento[];
@@ -24,7 +23,6 @@ export type EstadoAvistamientos = {
   error: string | null;
   reintentar: () => void;
   agregar: (avistamiento: Avistamiento) => Promise<void>;
-  eliminar: (id: string) => Promise<void>;
   obtenerPorId: (id: string) => Avistamiento | undefined;
 };
 
@@ -59,21 +57,6 @@ export function ProveedorAvistamientos({ children }: { children: ReactNode }) {
     setAvistamientos(await repositorio.guardarAvistamiento(avistamiento));
   }, []);
 
-  const eliminar = useCallback(
-    async (id: string) => {
-      const objetivo = avistamientos.find((a) => a.id === id);
-      const siguientes = await repositorio.eliminarAvistamiento(id);
-
-      // Borrar el registro sin borrar su archivo dejaria huerfanos ocupando espacio.
-      if (objetivo) {
-        await eliminarFoto(objetivo.fotoNombreArchivo);
-      }
-
-      setAvistamientos(siguientes);
-    },
-    [avistamientos],
-  );
-
   const obtenerPorId = useCallback(
     (id: string) => avistamientos.find((a) => a.id === id),
     [avistamientos],
@@ -86,10 +69,9 @@ export function ProveedorAvistamientos({ children }: { children: ReactNode }) {
       error,
       reintentar: () => void cargar(),
       agregar,
-      eliminar,
       obtenerPorId,
     }),
-    [avistamientos, cargando, error, cargar, agregar, eliminar, obtenerPorId],
+    [avistamientos, cargando, error, cargar, agregar, obtenerPorId],
   );
 
   return (

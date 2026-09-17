@@ -1,9 +1,11 @@
 # AvistAves
 
-Aplicación móvil para que los voluntarios de la Red de Observadores de Aves registren avistamientos
-en terreno: qué ave vieron, dónde, con qué evidencia fotográfica y bajo qué condiciones climáticas.
+Aplicación móvil para registrar avistamientos de aves en terreno: fotografía tomada con la cámara,
+ubicación obtenida por GPS y clima del momento. Construida para los voluntarios de la Red de
+Observadores de Aves.
 
-Examen transversal de Desarrollo de Aplicaciones Móviles, Instituto Profesional San Sebastián.
+React Native con Expo SDK 57 y TypeScript. Examen transversal de Desarrollo de Aplicaciones Móviles,
+Instituto Profesional San Sebastián.
 
 ---
 
@@ -22,6 +24,20 @@ Tres pantallas:
 
 Los avistamientos y sus fotografías sobreviven al cierre de la aplicación. Si la API del clima no
 responde, el avistamiento se guarda igual, sin clima: un problema de conexión nunca impide registrar.
+
+---
+
+## Estado
+
+Los seis requerimientos están implementados y verificados ejecutando la aplicación en el emulador.
+La demostración completa, con capturas de cada pantalla y de los casos de error, está en
+[INFORME.md](INFORME.md).
+
+**Limitación conocida.** En el emulador de Android, `takePictureAsync` devuelve un archivo JPEG sin
+contenido visible. Toda la cadena de la fotografía funciona y está verificada (permiso, vista previa
+en vivo, disparo, traslado del archivo al directorio de documentos, persistencia y miniatura); lo que
+falla es el contenido del archivo que entrega el emulador. El diagnóstico completo, con las cinco
+hipótesis que se descartaron, está en la sección 8 del informe.
 
 ---
 

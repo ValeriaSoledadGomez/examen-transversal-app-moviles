@@ -223,8 +223,10 @@ Hay tres razones, y las tres descartan alternativas concretas:
    `Paths.document` en cada lectura hace que el dato persistido sea independiente de dónde el
    sistema decida montar el directorio.
 
-El borrado de un avistamiento, si se implementa, debe eliminar también su archivo de foto, para no
-dejar huérfanos ocupando espacio.
+No existe borrado de avistamientos: ningún RF lo pide y este documento lo declaró prescindible desde
+el principio. La decisión se llevó hasta el final y no quedó lógica de borrado sin usar en el código.
+Si alguna vez se implementa, deberá eliminar también el archivo de la foto, para no dejar huérfanos
+ocupando espacio.
 
 ### Decisión sobre la dirección
 
@@ -354,8 +356,15 @@ Reglas de navegación:
 
 - El listado es la ruta raíz. El botón atrás del sistema desde el listado sale de la aplicación.
 - Del listado al formulario se navega con `push`, de modo que atrás cancela el registro.
-- Al guardar con éxito se usa `replace` hacia el listado, para que el formulario no quede en la
-  pila y el botón atrás desde el listado no lo reabra (CA-06.4).
+- Al guardar con éxito se descarta el formulario con `router.back()`, de modo que queda a la vista el
+  listado que ya estaba en la pila (CA-06.3 y CA-06.4).
+  **Corrección posterior a la implementación.** Este documento prescribía `router.replace('/')`, y la
+  auditoría en el emulador demostró que no cumple el criterio: `replace` no sustituye la entrada del
+  listado que ya estaba debajo, sino que apila una segunda encima. El síntoma era una flecha de
+  retroceso en la cabecera del listado, y pulsar atrás devolvía al mismo listado en lugar de salir de
+  la aplicación. Se sustituyó por `router.back()` con `canGoBack()` como guarda. Efecto secundario
+  favorable: el criterio de ordenamiento elegido ya no se pierde al volver, porque el listado no se
+  vuelve a montar.
 - La cámara no es una ruta: es un componente a pantalla completa montado dentro del formulario.
   Así el estado del formulario, que ya puede tener nombre, notas y coordenadas, no se pierde al
   capturar la fotografía.
@@ -687,6 +696,24 @@ Punto de partida: madrugada del miércoles 16 de septiembre. Plazo: jueves 17 a 
 planificación se mide en **horas de trabajo**, no en días, y contempla dos personas trabajando en
 paralelo.
 
+### Estado de ejecución
+
+El plan se cumplió en su orden. Lo que sigue es lo que efectivamente ocurrió, para que este
+documento sirva como registro y no solo como intención:
+
+| Fase | Estado |
+|---|---|
+| F0 a F5 | Ejecutadas. Las tres pantallas, los periféricos, el clima y la persistencia están implementados y verificados en el emulador |
+| F6 y F7 | Ejecutadas. Validaciones por campo, matriz de estados, pantallas de permiso denegado y tema de diseño para terreno |
+| F8 | Ejecutada. `INFORME.md` con las tres explicaciones, las medidas de optimización, quince capturas y la declaración del uso de IA |
+| F9 | Ejecutada. `README.md`, repositorio público, auditoría completa y entrega |
+
+Tres desviaciones respecto de lo planificado, todas documentadas en su sitio: la navegación al
+guardar (sección 6), el borrado que se sacrificó y se retiró del código (sección 4), y la captura de
+la cámara en el emulador, que es la única limitación que llega abierta a la entrega.
+
+### Plan original
+
 | Fase | Contenido | Horas | Responsable sugerido | Prioridad |
 |---|---|---|---|---|
 | F0 | Repositorio en GitHub, proyecto Expo creado, emulador levantado y aplicación corriendo. Primer commit de ambos integrantes | 1,5 | Ambos | Imprescindible |
@@ -769,7 +796,7 @@ producto, no informe: 34 de los 100 puntos no dependen de que la aplicación est
 | R-04 | Open-Meteo caído o sin red durante la demostración | Rompería la demostración de RF-02, 10 puntos | La degradación sin red ya es un requisito (CA-02.6), de modo que el fallo es un caso demostrado y no un accidente. Capturar en las evidencias **ambos** escenarios: con clima y en modo avión sin clima. Una caída de la API se convierte así en parte de la demostración |
 | R-05 | Las fotografías no sobreviven al reinicio porque quedaron en el directorio de caché | Rompe RF-05 y arruina la demostración del listado | El movimiento al directorio de documentos es parte de F3, no un ajuste posterior. La verificación número 17 de la checklist (cerrar, matar y reabrir) se ejecuta al cerrar F3 y se repite en F9 |
 | R-06 | La ruta absoluta de la fotografía cambia entre reinstalaciones y todas las imágenes se rompen | Rompe RF-05 de forma silenciosa, difícil de detectar | Persistir solo el nombre del archivo y reconstruir la ruta desde `Paths.document` en cada lectura, como establece la sección 4 |
-| R-07 | Valeria no queda registrada como contribuyente del repositorio | Incumple un requisito explícito de la modalidad grupal | Se acordó usar la línea `Co-authored-by` en los mensajes de commit. **Condición técnica ineludible:** el correo de esa línea debe ser exactamente el correo verificado de la cuenta de GitHub de Valeria, o su dirección `noreply` de GitHub; con cualquier otro correo, GitHub no la vincula y no aparecerá como contribuyente. Verificar en F0 con un commit de prueba que su avatar aparece en la vista del commit, y volver a verificarlo en F9 sobre la pestaña de contribuyentes. Si la vinculación no funciona, el respaldo es que Valeria haga al menos tres commits como autora principal, uno por cada bloque del informe |
+| R-07 | **Cerrado.** Valeria no queda registrada como contribuyente del repositorio | Incumple un requisito explícito de la modalidad grupal | Se acordó usar la línea `Co-authored-by` en los mensajes de commit. **Condición técnica ineludible:** el correo de esa línea debe ser exactamente el correo verificado de la cuenta de GitHub de Valeria, o su dirección `noreply` de GitHub; con cualquier otro correo, GitHub no la vincula y no aparecerá como contribuyente. **Resultado verificado tras el push:** el correo aportado sí está verificado en la cuenta `ValeriaSoledadGomez`, y GitHub la vincula como coautora en todos los commits. Una advertencia para quien repita esta comprobación: el endpoint `contributors` de la API **no incluye coautores**, de modo que consultarlo da un falso negativo. La comprobación válida es abrir la página de un commit, que resuelve los autores enlazados |
 | R-08 | Una versión de paquete incompatible rompe la compilación a mitad de camino | Pérdida de horas en un problema que no da puntos | Instalar siempre con `npx expo install`, que resuelve la versión correspondiente al SDK, y nunca con `npm install` a secas. No actualizar el SDK de Expo durante el desarrollo |
 | R-09 | El informe queda para el final y se entrega incompleto | Pérdida de hasta 34 puntos, el bloque más grande de la pauta | El informe corre en paralelo desde F0, a cargo de Valeria, y no depende de que la aplicación esté terminada. Las secciones 11 y 12 de este documento ya contienen su estructura y su contenido base |
 | R-10 | Se descubre el jueves por la tarde que un patrón de diseño no es señalable en el código escrito | Pérdida parcial de 12 puntos | Los tres patrones están decididos en la sección 11 con su archivo de destino. El código se escribe para exhibirlos. Al cerrar F5 se verifica que los tres archivos existen y contienen lo prometido |
@@ -787,11 +814,11 @@ resueltos por el equipo:
 | # | Elemento | Resolución |
 |---|---|---|
 | 1 | Repositorio | `https://github.com/ottonlucena/examen-transversal-app-moviles` |
-| 2 | Coautoría de Valeria Gómez | Correo aportado por el equipo y configurado en la línea `Co-authored-by` de los commits. Pendiente de **verificar** en GitHub que la vinculación funciona, según R-07 |
+| 2 | Coautoría de Valeria Gómez | Cerrado. Correo verificado en su cuenta de GitHub y vinculación comprobada en todos los commits |
 | 3 | Reparto de trabajo | Confirmado según la sección 13 |
 | 4 | Entorno de demostración | AVD `Pixel_8_API_34`, verificado en el equipo de desarrollo |
 
-La verificación del punto 2 no es un trámite: si GitHub no vincula el correo con la cuenta de
-Valeria, la coautoría aparece en el mensaje del commit pero ella no figura como contribuyente, y el
-requisito de la modalidad grupal queda incumplido sin que nada lo advierta. Se comprueba en F0 con
-el primer commit y se vuelve a comprobar en F9.
+La verificación del punto 2 no era un trámite: si GitHub no hubiera vinculado el correo con la
+cuenta de Valeria, la coautoría aparecería en el mensaje del commit pero ella no figuraría como
+contribuyente, y el requisito de la modalidad grupal quedaría incumplido sin que nada lo advirtiera.
+Se comprobó tras el push y la vinculación funciona.

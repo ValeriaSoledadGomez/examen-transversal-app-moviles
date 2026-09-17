@@ -403,7 +403,9 @@ sección 4 de `BRIEF.md`:
 4. **Nunca se guarda una imagen en base64 dentro de AsyncStorage.** Los binarios van al sistema de
    archivos; la base de datos guarda la referencia.
 
-Si se implementa el borrado de avistamientos, debe eliminar también el archivo de la fotografía.
+No existe borrado de avistamientos: ningún RF lo pide y el plan lo declaró prescindible. Si alguna
+vez se implementa, deberá eliminar también el archivo de la fotografía, para no dejar huérfanos
+ocupando espacio en el dispositivo.
 
 ### Verificación obligatoria
 

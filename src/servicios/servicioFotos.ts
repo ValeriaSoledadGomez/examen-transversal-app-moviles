@@ -52,15 +52,3 @@ export async function guardarFotoPermanente(uriDeCache: string): Promise<string>
 export function resolverUriFoto(nombreArchivo: string): string {
   return new File(Paths.document, CARPETA_FOTOS, nombreArchivo).uri;
 }
-
-/** Elimina el archivo de una foto. Se usa al borrar un avistamiento. */
-export async function eliminarFoto(nombreArchivo: string): Promise<void> {
-  try {
-    const archivo = new File(Paths.document, CARPETA_FOTOS, nombreArchivo);
-    if (archivo.exists) {
-      archivo.delete();
-    }
-  } catch (error) {
-    console.warn('[servicioFotos] No se pudo eliminar la foto', error);
-  }
-}

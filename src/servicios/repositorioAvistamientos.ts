@@ -66,10 +66,3 @@ export async function guardarAvistamiento(
   await escribirTodos(siguientes);
   return siguientes;
 }
-
-export async function eliminarAvistamiento(id: string): Promise<Avistamiento[]> {
-  const actuales = await leerAvistamientos();
-  const siguientes = actuales.filter((a) => a.id !== id);
-  await escribirTodos(siguientes);
-  return siguientes;
-}
