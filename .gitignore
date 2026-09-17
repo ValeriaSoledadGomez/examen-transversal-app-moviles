@@ -1,0 +1,53 @@
+# Documentos de trabajo que no se publican
+*.pdf
+
+# Dependencias
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# Proyectos nativos generados
+/android
+/ios
+.kotlin/
+
+# Compilaciones y firmas
+*.apk
+*.aab
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+*.orig.*
+
+# Entorno y credenciales
+.env
+.env.*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Herramientas locales
+.claude/settings.local.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+*.swp
+
+# Registros y temporales
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
