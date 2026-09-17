@@ -650,10 +650,11 @@ de la aplicación, no el consumo de la API.
 
 ## 6. Demostración de la aplicación
 
-Ejecutada sobre el emulador de Android **Pixel 8, API 34 (Android 14)**, imagen
-`google_apis_playstore`, en Linux Mint. La ubicación se inyecta con los controles del emulador
-(`adb emu geo fix -70.6693 -33.4489`, coordenadas de Santiago) y la cámara usa la escena virtual del
-emulador.
+La demostración se realizó en dos entornos. Las secciones 6.1 a 6.8 corresponden al **emulador de
+Android Pixel 8, API 34 (Android 14)**, imagen `google_apis_playstore`, sobre Linux Mint, donde la
+ubicación se inyecta con los controles del emulador (`adb emu geo fix -70.6693 -33.4489`,
+coordenadas de Santiago) y la cámara usa la escena virtual. La sección 6.9 corresponde a un
+**dispositivo Android físico**, con cámara, GPS y conexión reales.
 
 ### 6.1 Verificación previa del entorno
 
@@ -807,7 +808,35 @@ Esta prueba verifica el requisito más importante del diseño de la integración
 problema de conexión nunca impide registrar un avistamiento.** Un voluntario en terreno, que es
 justamente donde no hay cobertura, no pierde el registro.
 
-### 6.9 Persistencia tras cerrar la aplicación
+### 6.9 Demostración en dispositivo físico
+
+Las capturas anteriores provienen del emulador. Esta sección corresponde a la aplicación ejecutándose
+sobre un **Samsung Galaxy Note 20 (SM-N980F) con Android 13**, mediante Expo Go, con la cámara, el
+GPS y la conexión reales del teléfono.
+
+![Listado en el teléfono](docs/evidencia-telefono-listado.png)
+
+Dos avistamientos registrados en el dispositivo. Las miniaturas muestran fotografías con contenido
+real, tomadas con la cámara del teléfono. Obsérvese el segundo registro, "No identidad": es el caso
+que RF-01 contempla de forma explícita, el del voluntario que no logra identificar al ave y aun así
+necesita dejar constancia.
+
+![Detalle en el teléfono](docs/evidencia-telefono-detalle.png)
+
+![Clima registrado en el teléfono](docs/evidencia-telefono-detalle-clima.png)
+
+El detalle completo. La dirección obtenida con `reverseGeocodeAsync` y las coordenadas aparecen
+**ocultadas de forma deliberada**: corresponden a la ubicación real de un integrante del equipo y
+este repositorio es público. El bloque conserva su etiqueta y su posición, de modo que sigue siendo
+verificable que la aplicación traduce las coordenadas a una dirección legible, que es lo que exige
+RF-04. Todo lo demás es el dato auténtico: fotografía, fecha, cantidad, y el clima del momento con
+sus tres medidas, obtenido de Open-Meteo con las coordenadas que entregó el GPS del teléfono.
+
+Esta demostración cierra el único requisito que el emulador no podía acreditar. Con ella, los cuatro
+periféricos y servicios que el proyecto necesita quedan verificados sobre hardware real: **cámara,
+GPS, geocodificación inversa y API del clima.**
+
+### 6.10 Persistencia tras cerrar la aplicación
 
 ![Persistencia](docs/evidencia-persistencia-tras-reinicio.png)
 
@@ -965,11 +994,20 @@ cosas a la vez:
    en negro aunque alimente correctamente la vista previa. Son dos rutas distintas dentro del
    emulador, y solo una de ellas funciona.
 
-**Consecuencia para la evaluación.** La lógica de RF-01 relativa a la cámara está implementada y
-verificada en toda su extensión: permiso, vista previa en vivo, disparo, obtención de un archivo
-válido, traslado a almacenamiento permanente, persistencia y renderizado. Lo único que el entorno de
-demostración no puede aportar es el contenido visible de la imagen. La vía de resolución es ejecutar
-la aplicación en un dispositivo Android físico, donde la cámara es la del fabricante.
+### Resuelto en dispositivo físico
+
+La hipótesis se confirmó. Al ejecutar la misma aplicación, sin cambiar una línea de código, sobre un
+Samsung Galaxy Note 20 con Android 13, **la fotografía se captura con contenido correcto**. Las
+capturas están en la sección 6.9.
+
+El diagnóstico queda así cerrado por los dos extremos: se demostró que la causa no era el código
+(seis hipótesis descartadas, más la marca de tiempo que identifica al emulador como autor del
+archivo) y se demostró que en hardware real el problema no existe.
+
+**Consecuencia para la evaluación.** RF-01 queda verificado en toda su extensión sobre un
+dispositivo real. La limitación descrita en esta sección afecta únicamente al emulador y se
+documenta porque el proceso de diagnóstico forma parte del trabajo realizado, no porque quede
+ningún requisito sin cumplir.
 
 ### 8.3 Decisión pendiente documentada
 

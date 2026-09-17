@@ -29,19 +29,14 @@ responde, el avistamiento se guarda igual, sin clima: un problema de conexión n
 
 ## Estado
 
-Los seis requerimientos están implementados y verificados ejecutando la aplicación en el emulador.
-La demostración completa, con capturas de cada pantalla y de los casos de error, está en
-[INFORME.md](INFORME.md).
+Los seis requerimientos están implementados y verificados ejecutando la aplicación, en el emulador y
+en un dispositivo Android físico. La demostración completa, con capturas de cada pantalla y de los
+casos de error, está en [INFORME.md](INFORME.md).
 
-**Limitación conocida.** En el emulador de Android, `takePictureAsync` devuelve un archivo JPEG sin
-contenido visible. Toda la cadena de la fotografía funciona y está verificada (permiso, vista previa
-en vivo, disparo, traslado del archivo al directorio de documentos, persistencia y miniatura); lo que
-falla es el contenido del archivo que entrega el emulador.
-
-El archivo extraído del dispositivo resulta ser un JPEG válido de 1080x1911 con una marca de tiempo
-estampada en amarillo que la aplicación no dibuja: la genera la capa de cámara del emulador. El
-diagnóstico completo, con las seis hipótesis descartadas (incluido un *development build* propio que
-no usa Expo Go), está en la sección 8 del informe.
+**Nota sobre el emulador.** En el emulador de Android, `takePictureAsync` devuelve un archivo JPEG
+sin contenido visible. **En un dispositivo físico la fotografía se captura correctamente**, y así se
+demuestra en la sección 6.9 del informe. El diagnóstico completo del fallo del emulador, con las seis
+hipótesis descartadas, está en la sección 8.
 
 ---
 
