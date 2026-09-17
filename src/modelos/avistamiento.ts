@@ -72,7 +72,7 @@ export function validarBorrador(borrador: BorradorAvistamiento): ErroresValidaci
   }
 
   if (!Number.isInteger(borrador.cantidad) || borrador.cantidad < 1) {
-    errores.cantidad = 'La cantidad debe ser un número entero de 1 o mas.';
+    errores.cantidad = 'La cantidad debe ser un número entero de 1 o más.';
   }
 
   return errores;

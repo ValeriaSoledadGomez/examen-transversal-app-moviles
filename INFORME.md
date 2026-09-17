@@ -333,15 +333,23 @@ componente propio, `InsigniaClima`:
 
 ```tsx
 // src/componentes/TarjetaAvistamiento.tsx
-<Pressable onPress={() => onPress(avistamiento.id)} style={estilos.tarjeta}>
+<Pressable
+  accessibilityRole="button"
+  accessibilityLabel={`Ver detalle de ${avistamiento.nombreAve}`}
+  onPress={() => onPress(avistamiento.id)}
+  style={({ pressed }) => [estilos.tarjeta, pressed && estilos.presionada]}>
   <Image
+    // La ruta se reconstruye en cada lectura desde el nombre persistido.
     source={{ uri: resolverUriFoto(avistamiento.fotoNombreArchivo) }}
     style={estilos.miniatura}
     contentFit="cover"
+    transition={150}
   />
 
   <View style={estilos.datos}>
-    <Text style={estilos.nombre}>{avistamiento.nombreAve}</Text>
+    <Text style={estilos.nombre} numberOfLines={1}>
+      {avistamiento.nombreAve}
+    </Text>
     <Text style={estilos.fecha}>{formatearFechaCorta(avistamiento.fechaAvistamiento)}</Text>
     <Text style={estilos.cantidad}>{formatearCantidad(avistamiento.cantidad)}</Text>
     <InsigniaClima clima={avistamiento.clima} compacta />
@@ -710,8 +718,33 @@ Al guardar correctamente, la aplicación confirma la operación y vuelve al list
 avistamiento recién creado aparece en primera posición. La tarjeta muestra miniatura, nombre, fecha
 y temperatura registrada. Arriba, el selector de ordenamiento con sus tres criterios.
 
-La navegación de vuelta usa `router.replace` y no `push`, de modo que el formulario no queda en la
-pila: pulsar atrás desde el listado sale de la aplicación en lugar de reabrir el formulario.
+La navegación de vuelta descarta el formulario con `router.back()`, de modo que pulsar atrás desde
+el listado sale de la aplicación en lugar de reabrir el formulario o mostrar un listado duplicado.
+
+La primera implementación usaba `router.replace('/')`, siguiendo la idea de reemplazar el formulario
+por el listado. La auditoría en el emulador mostró que no hace eso: `replace` no sustituye la
+entrada del listado que ya estaba debajo en la pila, sino que apila una segunda encima. El síntoma
+era una flecha de retroceso en la cabecera del listado, y pulsar atrás devolvía al mismo listado en
+lugar de salir de la aplicación. Con `back()` se descarta el formulario y queda a la vista el
+listado que ya existía.
+
+#### Ordenamiento del listado
+
+RF-03 exige un filtro o un ordenamiento a elección. Se implementaron **tres** criterios
+intercambiables, definidos en `src/utilidades/estrategiasOrden.ts` como funciones de comparación:
+el listado no sabe cómo se ordena, solo elige una clave.
+
+![Orden por fecha](docs/evidencia-orden-por-fecha.png)
+
+Orden por defecto, del avistamiento más reciente al más antiguo, como exige RF-03.
+
+![Orden por cantidad](docs/evidencia-orden-por-cantidad.png)
+
+El mismo conjunto ordenado por cantidad de ejemplares. El criterio activo queda marcado
+visualmente y el listado se reordena de inmediato.
+
+Añadir un criterio nuevo consiste en añadir una entrada a ese archivo, sin tocar la pantalla del
+listado.
 
 ### 6.6 Detalle del avistamiento
 

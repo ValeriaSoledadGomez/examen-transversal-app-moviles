@@ -114,9 +114,18 @@ export default function PantallaRegistro() {
       await agregar(crearAvistamiento(candidato));
 
       Alert.alert('Avistamiento guardado', 'El registro quedó guardado en tu dispositivo.');
-      // replace y no push: el formulario no debe quedar en la pila, o el boton
-      // atras desde el listado lo reabriria (CA-06.4).
-      router.replace('/');
+      // Se vuelve con back y no con replace. Verificado en el emulador:
+      // replace('/') no reemplaza la entrada del listado que ya estaba en la
+      // pila, sino que apila una segunda encima, y entonces el botón atrás
+      // desde el listado devolvía al mismo listado en lugar de salir de la
+      // aplicación, incumpliendo CA-06.3. back() descarta el formulario y
+      // deja a la vista el listado que ya existía.
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        // El formulario se abrió directamente, sin listado debajo.
+        router.replace('/');
+      }
     } catch (causa) {
       console.warn('[registro] Falló el guardado', causa);
       setErrorGuardado('No se pudo guardar el avistamiento. Inténtalo de nuevo.');

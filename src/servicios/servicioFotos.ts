@@ -38,7 +38,7 @@ export async function guardarFotoPermanente(uriDeCache: string): Promise<string>
   const archivo = new File(uriDeCache);
 
   if (!archivo.exists) {
-    throw new Error('La fotografía capturada ya no esta disponible');
+    throw new Error('La fotografía capturada ya no está disponible');
   }
 
   await archivo.move(destino);
@@ -51,14 +51,6 @@ export async function guardarFotoPermanente(uriDeCache: string): Promise<string>
  */
 export function resolverUriFoto(nombreArchivo: string): string {
   return new File(Paths.document, CARPETA_FOTOS, nombreArchivo).uri;
-}
-
-export function existeFoto(nombreArchivo: string): boolean {
-  try {
-    return new File(Paths.document, CARPETA_FOTOS, nombreArchivo).exists;
-  } catch {
-    return false;
-  }
 }
 
 /** Elimina el archivo de una foto. Se usa al borrar un avistamiento. */
