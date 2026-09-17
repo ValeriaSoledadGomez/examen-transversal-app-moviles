@@ -55,6 +55,9 @@ ahí tres decisiones que atraviesan todo el producto:
 | Integración con la API | RF-02, RF-04 | 10 |
 | Optimización de la API | Informe, sección 5 | 10 |
 
+### Reparto del trabajo
+Para este proyecto nos organizamos de manera muy colaborativa. Yo me encargué de redactar la introducción y la sección de arquitectura en el informe, además de revisar y probar el código de las pantallas principales de la app. Tomamos en conjunto las decisiones clave sobre la estructura y las tecnologías a usar, mientras que el desarrollo de componentes específicos lo dividimos por separado para avanzar más rápido.
+
 ---
 
 ## 2. Arquitectura del framework elegido
