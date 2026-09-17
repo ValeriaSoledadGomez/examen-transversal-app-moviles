@@ -245,7 +245,7 @@ export function usarAvistamientos(): EstadoAvistamientos {
 existe en el código. Cuando el formulario `src/app/registro.tsx` guarda un avistamiento, llama a
 `agregar` y navega al listado. En ningún punto le comunica nada a `src/app/index.tsx`. No hay una
 llamada, un evento ni una referencia entre ambas pantallas: el formulario ni siquiera sabe que el
-listado existe. El listado se actualiza porque estaba suscrito al mismo sujeto. Esa
+listado existe. El listado se actualiza porque estaba suscrito al mismo sujeto. Ese
 desacoplamiento entre quien publica el cambio y quien reacciona a él es exactamente lo que define al
 Observador.
 
@@ -859,7 +859,7 @@ esta entrega. Lo que se usó y para qué:
 |---|---|
 | Análisis y planificación | Redacción del documento de análisis (`BRIEF.md`) y de las reglas técnicas del repositorio (`AGENTS.md`): traducción de los requerimientos a criterios de aceptación verificables, diseño del modelo de datos, definición de la matriz de estados y del plan por fases |
 | Generación de código | Escritura del código de la aplicación en las fases 1 a 5, siguiendo la arquitectura y las convenciones fijadas previamente en `AGENTS.md` |
-| Diagnóstico de fallos | Investigación de los tres fallos documentados en este informe: el proveedor de ubicación en el emulador, el React Compiler y el código postal en el geocodificador |
+| Diagnóstico de fallos | Investigación de los cuatro fallos documentados en este informe: el proveedor de ubicación en el emulador, el React Compiler, el código postal en el geocodificador y la duplicación de la pila de navegación al guardar |
 | Redacción del informe | Estructura y redacción de este documento |
 | Verificación de versiones y APIs | Consulta de la documentación oficial de Expo y React Native, y del registro de npm, para fijar versiones y firmas de funciones |
 
@@ -927,7 +927,7 @@ es únicamente el contenido del archivo que entrega el emulador.
 La vista previa entrega fotogramas correctos, como muestra la captura. El problema aparece solo al
 materializar el archivo.
 
-Se descartaron cinco hipótesis de forma sistemática:
+Se descartaron cuatro hipótesis de forma sistemática:
 
 | Hipótesis | Acción | Resultado |
 |---|---|---|
